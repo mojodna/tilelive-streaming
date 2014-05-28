@@ -270,5 +270,6 @@ module.exports = function(tilelive) {
 };
 
 module.exports.Collector = Collector;
+module.exports.PassThrough = PassThrough;
 module.exports.Readable = Readable;
 module.exports.Writable = Writable;
