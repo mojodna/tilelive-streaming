@@ -157,6 +157,7 @@ util.inherits(Writable, stream.Writable);
 
 module.exports = function(tilelive) {
   // list of enhanced sources
+  // TODO this is dangerous, as it prevents expired providers from being GC'd
   var enhanced = [];
 
   var enableStreaming = function(uri, source) {
