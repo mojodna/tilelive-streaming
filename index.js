@@ -7,6 +7,49 @@ var async = require("async"),
     tilelive = require("tilelive");
 
 /**
+ * Mildly enhanced PassThrough stream with header-setting capabilities.
+ */
+var PassThrough = function(options) {
+  stream.PassThrough.call(this, options);
+
+  var dests = [],
+      _pipe = this.pipe,
+      _unpipe = this.unpipe;
+
+  this.pipe = function(dest) {
+    dests.push(dest);
+
+    return _pipe.apply(this, arguments);
+  };
+
+  this.unpipe = function(dest) {
+    if (dest && dests.indexOf(dest) >= 0) {
+      // remove the destination
+      dests.splice(dests.indexOf(dest), 1);
+    } else if (!dest) {
+      // reset destinations
+      dests = [];
+    }
+
+    return _unpipe.apply(this, arguments);
+  };
+
+  this.setHeaders = function(headers) {
+    if (headers) {
+      dests.forEach(function(dest) {
+        if (dest.setHeader) {
+          Object.keys(headers).forEach(function(x) {
+            dest.setHeader(x, headers[x]);
+          });
+        }
+      });
+    }
+  };
+};
+
+util.inherits(PassThrough, stream.PassThrough);
+
+/**
 * Generate a stream of stream objects containing tile data and coordinates.
 */
 var Readable = function(options, source) {
@@ -55,7 +98,7 @@ var Readable = function(options, source) {
       var tile = scheme.nextTile();
 
       if (tile) {
-        return source.getTile(tile.z, tile.x, tile.y, function(err, data) {
+        return source.getTile(tile.z, tile.x, tile.y, function(err, data, headers) {
           if (err) {
             if (!err.message.match(/Tile|Grid does not exist/)) {
               console.warn(err.stack);
@@ -63,9 +106,9 @@ var Readable = function(options, source) {
             }
           }
 
-          if (data) {
+          if (data || headers) {
             // downstream consumers expect stream objects w/ coordinates attached
-            var out = new stream.PassThrough();
+            var out = new PassThrough();
             out.z = tile.z;
             out.x = tile.x;
             out.y = tile.y;
@@ -73,8 +116,10 @@ var Readable = function(options, source) {
             tileWritten = true;
             self.push(out);
 
+            out.setHeaders(headers);
+
             // since we already have all of the data here, flush it all at once
-            out.end(data);
+            out.end(data || null);
           }
 
           return callback();
@@ -100,10 +145,15 @@ var Collector = function() {
   });
 
   this._transform = function(obj, _, done) {
-    var self = this;
-    var chunks = [];
+    var self = this,
+        chunks = [],
+        headers = {};
 
     var collector = new stream.PassThrough();
+
+    collector.setHeader = function(k, val) {
+      headers[k] = val;
+    };
 
     collector._transform = function(chunk, _, callback) {
       chunks.push(chunk);
@@ -119,6 +169,7 @@ var Collector = function() {
         z: obj.z,
         x: obj.x,
         y: obj.y,
+        headers: headers,
         length: data.length
       });
 
@@ -126,6 +177,7 @@ var Collector = function() {
         z: obj.z,
         x: obj.x,
         y: obj.y,
+        headers: headers,
         data: data
       });
 
@@ -149,7 +201,12 @@ var Writable = function(sink) {
   });
 
   this._write = function(obj, _, callback) {
-    return sink.putTile(obj.z, obj.x, obj.y, obj.data, callback);
+    if (sink.putTile.length === 5) {
+      // sink doesn't include a headers parameter
+      return sink.putTile(obj.z, obj.x, obj.y, obj.data, callback);
+    }
+
+    return sink.putTile(obj.z, obj.x, obj.y, obj.data, obj.headers, callback);
   };
 };
 
