@@ -96,8 +96,7 @@ util.inherits(Readable, stream.Readable);
 */
 var Collector = function() {
   stream.Transform.call(this, {
-    objectMode: true,
-    highWaterMark: 1
+    objectMode: true
   });
 
   this._transform = function(obj, _, done) {
