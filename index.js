@@ -201,7 +201,7 @@ module.exports = function(tilelive) {
     return source;
   };
 
-  var _load = tilelive.load;
+  var _load = tilelive.load.bind(tilelive);
 
   tilelive.load = function(uri, callback) {
     return _load(uri, function(err, source) {
