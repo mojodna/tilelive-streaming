@@ -9,8 +9,12 @@ var async = require("async"),
 /**
  * Mildly enhanced PassThrough stream with header-setting capabilities.
  */
-var PassThrough = function(options) {
-  stream.PassThrough.call(this, options);
+var TileStream = function(zoom, x, y) {
+  stream.PassThrough.call(this);
+
+  this.z = zoom;
+  this.x = x;
+  this.y = y;
 
   var dests = [],
       _pipe = this.pipe,
@@ -47,7 +51,7 @@ var PassThrough = function(options) {
   };
 };
 
-util.inherits(PassThrough, stream.PassThrough);
+util.inherits(TileStream, stream.PassThrough);
 
 /**
 * Generate a stream of stream objects containing tile data and coordinates.
@@ -115,10 +119,7 @@ var Readable = function(options, source) {
 
           if (data || headers) {
             // downstream consumers expect stream objects w/ coordinates attached
-            var out = new PassThrough();
-            out.z = tile.z;
-            out.x = tile.x;
-            out.y = tile.y;
+            var out = new TileStream(tile.z, tile.x, tile.y);
 
             tileWritten = true;
             self.push(out);
@@ -270,6 +271,6 @@ module.exports = function(tilelive) {
 };
 
 module.exports.Collector = Collector;
-module.exports.PassThrough = PassThrough;
 module.exports.Readable = Readable;
+module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
