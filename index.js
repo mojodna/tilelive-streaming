@@ -57,6 +57,13 @@ var Readable = function(options, source) {
     objectMode: true
   });
 
+  // set some defaults
+  options = options || {};
+  options.scheme = options.scheme || "scanline";
+  options.minzoom = 'minzoom' in options ? options.minzoom : 0;
+  options.maxzoom = 'maxzoom' in options ? options.maxzoom : Infinity;
+  options.bbox = options.bbox || [-180, -85.0511, 180, 85.0511];
+
   var scheme;
 
   source.getInfo(function(err, info) {
@@ -224,13 +231,6 @@ module.exports = function(tilelive) {
       // only add readable streams if the underlying source is readable
 
       source.createReadStream = source.createReadStream || function(options) {
-        // set some defaults
-        options = options || {};
-        options.scheme = options.scheme || "scanline";
-        options.minzoom = 'minzoom' in options ? options.minzoom : 0;
-        options.maxzoom = 'maxzoom' in options ? options.maxzoom : Infinity;
-        options.bbox = options.bbox || [-180, -85.0511, 180, 85.0511];
-
         return new Readable(options, this);
       };
     }
