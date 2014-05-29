@@ -54,6 +54,37 @@ var TileStream = function(zoom, x, y) {
 
 util.inherits(TileStream, stream.PassThrough);
 
+var defaultOptions = function(options) {
+  // TODO copy
+
+  options = options || {};
+  options.scheme = options.scheme || "scanline";
+  options.minzoom = 'minzoom' in options ? options.minzoom : 0;
+  options.maxzoom = 'maxzoom' in options ? options.maxzoom : Infinity;
+  options.bounds = options.bounds || [-180, -85.0511, 180, 85.0511];
+
+  return options;
+};
+
+var restrictOptions = function(options, info) {
+  // TODO copy
+
+  // set some sensible defaults
+  info.bounds = info.bounds || [-180, -85.0511, 180, 85.0511];
+  info.minzoom = 'minzoom' in info ? info.minzoom : 0;
+  info.maxzoom = 'maxzoom' in info ? info.maxzoom : Infinity;
+
+  // restrict the options according to known restrictions
+  options.minzoom = Math.max(options.minzoom, info.minzoom);
+  options.maxzoom = Math.min(options.maxzoom, info.maxzoom);
+  options.bounds[0] = Math.max(options.bounds[0], info.bounds[0]);
+  options.bounds[1] = Math.max(options.bounds[1], info.bounds[1]);
+  options.bounds[2] = Math.min(options.bounds[2], info.bounds[2]);
+  options.bounds[3] = Math.min(options.bounds[3], info.bounds[3]);
+
+  return options;
+};
+
 /**
 * Generate a stream of stream objects containing tile data and coordinates.
 */
@@ -63,13 +94,10 @@ var Readable = function(options, source) {
   });
 
   // set some defaults
-  options = options || {};
-  options.scheme = options.scheme || "scanline";
-  options.minzoom = 'minzoom' in options ? options.minzoom : 0;
-  options.maxzoom = 'maxzoom' in options ? options.maxzoom : Infinity;
-  options.bbox = options.bbox || [-180, -85.0511, 180, 85.0511];
+  options = defaultOptions(options);
 
-  var scheme;
+  var readable = this,
+      scheme;
 
   source.getInfo(function(err, info) {
     if (err) {
@@ -77,19 +105,10 @@ var Readable = function(options, source) {
     }
 
     if (info) {
-      // set some sensible defaults
-      info.bounds = info.bounds || [-180, -85.0511, 180, 85.0511];
-      info.minzoom = 'minzoom' in info ? info.minzoom : 0;
-      info.maxzoom = 'maxzoom' in info ? info.maxzoom : Infinity;
-
-      // restrict the options according to known restrictions
-      options.minzoom = Math.max(options.minzoom, info.minzoom);
-      options.maxzoom = Math.min(options.maxzoom, info.maxzoom);
-      options.bbox[0] = Math.max(options.bbox[0], info.bounds[0]);
-      options.bbox[1] = Math.max(options.bbox[1], info.bounds[1]);
-      options.bbox[2] = Math.min(options.bbox[2], info.bounds[2]);
-      options.bbox[3] = Math.min(options.bbox[3], info.bounds[3]);
+      options = restrictOptions(options, info);
     }
+
+    readable.options = options;
 
     scheme = tilelive.Scheme.create(options.scheme, options);
     scheme.formats = ["tile"];
@@ -294,3 +313,5 @@ module.exports.Collector = Collector;
 module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
+module.exports.defaultOptions = defaultOptions;
+module.exports.restrictOptions = restrictOptions;
