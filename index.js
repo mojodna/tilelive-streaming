@@ -1,6 +1,7 @@
 "use strict";
 
 var stream = require("stream"),
+    url = require("url"),
     util = require("util");
 
 var async = require("async"),
@@ -220,6 +221,20 @@ var Writable = function(sink) {
 
 util.inherits(Writable, stream.Writable);
 
+var enhance = function(uri, source) {
+  if (typeof(uri) === "string") {
+    uri = url.parse(uri);
+  }
+
+  var proto = uri.protocol.slice(0, -1);
+
+  try {
+    source = require("./lib/" + proto)(source);
+  } catch (err) {}
+
+  return source;
+};
+
 module.exports = function(tilelive) {
   var enableStreaming = function(uri, source) {
     if (source._streamable) {
@@ -227,6 +242,11 @@ module.exports = function(tilelive) {
 
       return source;
     }
+
+    // attempt to enhance the source with custom streams
+    source = enhance(uri, source);
+
+    // fall back to default enhancement
 
     if (source.getTile) {
       // only add readable streams if the underlying source is readable
