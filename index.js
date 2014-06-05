@@ -118,6 +118,8 @@ var Readable = function(options, source) {
 
     readable.options = options;
 
+    // tilelive uses a different key from TileJSON
+    options.bbox = options.bounds;
     scheme = tilelive.Scheme.create(options.scheme, options);
     scheme.formats = ["tile"];
   });
@@ -137,20 +139,6 @@ var Readable = function(options, source) {
       var tile = scheme.nextTile();
 
       if (tile) {
-        // filter tiles
-        var xyz = mercator.xyz(self.options.bounds, tile.z);
-
-        if (!(tile.z >= self.options.minzoom && tile.z <= self.options.maxzoom)) {
-          return callback();
-        }
-
-        if (!(tile.x >= xyz.minX &&
-              tile.x <= xyz.maxX &&
-              tile.y >= xyz.minY &&
-              tile.y <= xyz.maxY)) {
-          return callback();
-        }
-
         return source.getTile(tile.z, tile.x, tile.y, function(err, data, headers) {
           if (err) {
             if (!err.message.match(/Tile|Grid does not exist/)) {
