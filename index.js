@@ -112,6 +112,7 @@ var Readable = function(options, source) {
 
     if (info) {
       options = restrict(options, info);
+      readable.emit("info", restrict(info, options));
     }
 
     readable.options = options;
