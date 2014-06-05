@@ -178,6 +178,11 @@ var Collector = function() {
     objectMode: true
   });
 
+  this.on("pipe", function(src) {
+    // forward "info" events
+    src.on("info", this.emit.bind(this, "info"));
+  });
+
   this._transform = function(obj, _, done) {
     var self = this,
         chunks = [],
@@ -285,12 +290,23 @@ module.exports = function(tilelive) {
       // only add writable streams if the underlying source is writable
 
       source.createWriteStream = source.createWriteStream || function() {
-        // we want to return a reference to the head-end of the pipeline
-        var writeStream = new Collector();
+        var sink = this,
+            writeStream = new Collector();
+
+        if (sink.putInfo) {
+          writeStream.on("info", function(info) {
+            return sink.putInfo(info, function(err) {
+              if (err) {
+                throw err;
+              }
+            });
+          });
+        }
 
         writeStream
           .pipe(new Writable(this));
 
+        // return a reference to the head-end of the pipeline
         return writeStream;
       };
     }
@@ -320,4 +336,5 @@ module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
 module.exports.applyDefaults = applyDefaults;
+module.exports.clone = clone;
 module.exports.restrict = restrict;
