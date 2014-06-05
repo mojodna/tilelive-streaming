@@ -4,7 +4,8 @@ var stream = require("stream"),
     url = require("url"),
     util = require("util");
 
-var async = require("async"),
+var _ = require("highland"),
+    async = require("async"),
     tilelive = require("tilelive");
 
 /**
@@ -292,13 +293,18 @@ module.exports = function(tilelive) {
     if (source.putTile) {
       // only add writable streams if the underlying source is writable
 
-      source.createWriteStream = source.createWriteStream || function() {
+      source.createWriteStream = source.createWriteStream || function(options) {
         var sink = this,
             writeStream = new Collector();
 
+        options = options || {};
+        options.info = options.info || {};
+
         if (sink.putInfo) {
           writeStream.on("info", function(info) {
-            return sink.putInfo(info, function(err) {
+            options.info = _.extend(options.info, info);
+
+            return sink.putInfo(restrict(options.info, info), function(err) {
               if (err) {
                 throw err;
               }
