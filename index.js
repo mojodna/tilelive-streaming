@@ -5,7 +5,6 @@ var stream = require("stream"),
     util = require("util");
 
 var async = require("async"),
-    mercator = new (require("sphericalmercator"))(),
     tilelive = require("tilelive");
 
 /**
