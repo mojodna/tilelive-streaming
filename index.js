@@ -54,35 +54,41 @@ var TileStream = function(zoom, x, y) {
 
 util.inherits(TileStream, stream.PassThrough);
 
-var defaultOptions = function(options) {
-  // TODO copy
+var clone = function(obj) {
+  return Object.keys(obj || {}).reduce(function(v, k) {
+    v[k] = obj[k];
 
-  options = options || {};
-  options.scheme = options.scheme || "scanline";
-  options.minzoom = 'minzoom' in options ? options.minzoom : 0;
-  options.maxzoom = 'maxzoom' in options ? options.maxzoom : Infinity;
-  options.bounds = options.bounds || [-180, -85.0511, 180, 85.0511];
-
-  return options;
+    return v;
+  }, {});
 };
 
-var restrictOptions = function(options, info) {
-  // TODO copy
+var applyDefaults = function(info, isOptions) {
+  var data = clone(info);
 
-  // set some sensible defaults
-  info.bounds = info.bounds || [-180, -85.0511, 180, 85.0511];
-  info.minzoom = 'minzoom' in info ? info.minzoom : 0;
-  info.maxzoom = 'maxzoom' in info ? info.maxzoom : Infinity;
+  if (isOptions) {
+    data.scheme = data.scheme || "scanline";
+  }
+
+  data.minzoom = 'minzoom' in data ? data.minzoom : 0;
+  data.maxzoom = 'maxzoom' in data ? data.maxzoom : Infinity;
+  data.bounds = data.bounds || [-180, -85.0511, 180, 85.0511];
+
+  return data;
+};
+
+var restrict = function(info, by) {
+  info = clone(info);
+  by = applyDefaults(by);
 
   // restrict the options according to known restrictions
-  options.minzoom = Math.max(options.minzoom, info.minzoom);
-  options.maxzoom = Math.min(options.maxzoom, info.maxzoom);
-  options.bounds[0] = Math.max(options.bounds[0], info.bounds[0]);
-  options.bounds[1] = Math.max(options.bounds[1], info.bounds[1]);
-  options.bounds[2] = Math.min(options.bounds[2], info.bounds[2]);
-  options.bounds[3] = Math.min(options.bounds[3], info.bounds[3]);
+  info.minzoom = Math.max(info.minzoom, by.minzoom);
+  info.maxzoom = Math.min(info.maxzoom, by.maxzoom);
+  info.bounds[0] = Math.max(info.bounds[0], by.bounds[0]);
+  info.bounds[1] = Math.max(info.bounds[1], by.bounds[1]);
+  info.bounds[2] = Math.min(info.bounds[2], by.bounds[2]);
+  info.bounds[3] = Math.min(info.bounds[3], by.bounds[3]);
 
-  return options;
+  return info;
 };
 
 /**
@@ -94,7 +100,7 @@ var Readable = function(options, source) {
   });
 
   // set some defaults
-  options = defaultOptions(options);
+  options = applyDefaults(options, true);
 
   var readable = this,
       scheme;
@@ -105,7 +111,7 @@ var Readable = function(options, source) {
     }
 
     if (info) {
-      options = restrictOptions(options, info);
+      options = restrict(options, info);
     }
 
     readable.options = options;
@@ -313,5 +319,5 @@ module.exports.Collector = Collector;
 module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
-module.exports.defaultOptions = defaultOptions;
-module.exports.restrictOptions = restrictOptions;
+module.exports.applyDefaults = applyDefaults;
+module.exports.restrict = restrict;
