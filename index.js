@@ -301,7 +301,10 @@ module.exports = function(tilelive) {
         options.info = options.info || {};
 
         if (sink.putInfo) {
-          writeStream.on("info", function(info) {
+          var infoReceived = false;
+
+          writeStream.once("info", function(info) {
+            infoReceived = true;
             options.info = _.extend(options.info, info);
 
             return sink.putInfo(restrict(options.info, info), function(err) {
@@ -309,6 +312,17 @@ module.exports = function(tilelive) {
                 throw err;
               }
             });
+          });
+
+          writeStream.on("finish", function() {
+            if (!infoReceived) {
+              infoReceived = true;
+              return sink.putInfo(options.info, function(err) {
+                if (err) {
+                  throw err;
+                }
+              });
+            }
           });
         }
 
