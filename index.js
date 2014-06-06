@@ -106,6 +106,9 @@ var Readable = function(options, source) {
   var readable = this,
       scheme;
 
+  // TODO emit basic stats about the read stream (number of records if known,
+  // etc.)
+
   source.getInfo(function(err, info) {
     if (err) {
       console.warn(err);
