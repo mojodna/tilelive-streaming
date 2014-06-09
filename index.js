@@ -97,7 +97,8 @@ var restrict = function(info, by) {
 */
 var Readable = function(options, source) {
   stream.Readable.call(this, {
-    objectMode: true
+    objectMode: true,
+    highWaterMark: 32
   });
 
   // set some defaults
@@ -182,7 +183,8 @@ util.inherits(Readable, stream.Readable);
 */
 var Collector = function() {
   stream.Transform.call(this, {
-    objectMode: true
+    objectMode: true,
+    highWaterMark: 32
   });
 
   this.on("pipe", function(src) {
@@ -243,7 +245,8 @@ util.inherits(Collector, stream.Transform);
 */
 var Writable = function(sink) {
   stream.Writable.call(this, {
-    objectMode: true
+    objectMode: true,
+    highWaterMark: 32
   });
 
   this._write = function(obj, _, callback) {
