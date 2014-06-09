@@ -78,7 +78,7 @@ var applyDefaults = function(info, isOptions) {
 };
 
 var restrict = function(info, by) {
-  info = clone(info);
+  info = applyDefaults(info);
   by = applyDefaults(by);
 
   // restrict the options according to known restrictions
