@@ -4,6 +4,10 @@
   "description": "Streaming functionality for tilelive modules",
   "main": "index.js",
   "author": "Seth Fitzsimmons <seth@mojodna.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mojodna/tilelive-streaming.git"
+  },
   "license": "ISC",
   "dependencies": {
     "async": "^0.9.0",
