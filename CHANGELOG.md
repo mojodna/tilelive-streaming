@@ -1,5 +1,9 @@
 # Changes
 
+## v0.1.4 - 10/13/14
+
+* Explicitly depend on `tilelive@^4.5.3`
+
 ## v0.1.3 - 10/13/14
 
 * Upgraded dependencies
