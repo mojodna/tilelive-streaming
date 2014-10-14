@@ -1,5 +1,9 @@
 # Changes
 
+## v0.1.3 - 10/13/14
+
+* Upgraded dependencies
+
 ## v0.1.2 - 6/12/14
 
 * `mbtiles`: `close()` when done
