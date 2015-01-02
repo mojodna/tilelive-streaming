@@ -128,6 +128,8 @@ var Readable = function(options, source) {
     scheme.formats = ["tile"];
   });
 
+  var pending = 0;
+
   this._read = function() {
     if (!scheme) {
       // scheme isn't ready yet
@@ -135,15 +137,20 @@ var Readable = function(options, source) {
     }
 
     var self = this,
-        tileWritten = false;
+        done = false,
+        keepGoing = true;
 
-    return async.until(function() {
-      return tileWritten;
+    return async.whilst(function() {
+      return keepGoing && !done;
     }, function(callback) {
       var tile = scheme.nextTile();
 
       if (tile) {
+        // track pending requests so we don't end the stream before they finish
+        pending++;
         return source.getTile(tile.z, tile.x, tile.y, function(err, data, headers) {
+          pending--;
+
           if (err) {
             if (!err.message.match(/Tile|Grid does not exist/)) {
               console.warn(err.stack);
@@ -155,8 +162,8 @@ var Readable = function(options, source) {
             // downstream consumers expect stream objects w/ coordinates attached
             var out = new TileStream(tile.z, tile.x, tile.y);
 
-            tileWritten = true;
-            self.push(out);
+            // push this tile and see if we should keep buffering
+            keepGoing = self.push(out);
 
             out.setHeaders(headers);
 
@@ -168,11 +175,18 @@ var Readable = function(options, source) {
         });
       }
 
-      tileWritten = true;
-      self.push(null);
+      // no more tiles
+      done = true;
 
       return callback();
-    }, function() {});
+    }, function() {
+      // all pending getTile() calls are complete
+
+      if (done && pending === 0) {
+        // end the stream
+        self.push(null);
+      }
+    });
   };
 };
 

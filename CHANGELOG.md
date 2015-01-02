@@ -1,5 +1,9 @@
 # Changes
 
+## v0.1.5 - 1/2/15
+
+* Respect `stream.push`'s return value to buffer correctly
+
 ## v0.1.4 - 10/13/14
 
 * Explicitly depend on `tilelive@^4.5.3`
