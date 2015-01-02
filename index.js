@@ -70,8 +70,8 @@ var applyDefaults = function(info, isOptions) {
     data.scheme = data.scheme || "scanline";
   }
 
-  data.minzoom = 'minzoom' in data ? data.minzoom : 0;
-  data.maxzoom = 'maxzoom' in data ? data.maxzoom : Infinity;
+  data.minzoom = "minzoom" in data ? data.minzoom : 0;
+  data.maxzoom = "maxzoom" in data ? data.maxzoom : Infinity;
   data.bounds = data.bounds || [-180, -85.0511, 180, 85.0511];
 
   return data;
