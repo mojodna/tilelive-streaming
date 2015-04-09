@@ -1,5 +1,9 @@
 # Changes
 
+## v0.1.6 - 4/9/15
+
+* Correctly finish reading from MBTiles
+
 ## v0.1.5 - 1/2/15
 
 * Respect `stream.push`'s return value to buffer correctly
