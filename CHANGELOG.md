@@ -1,5 +1,10 @@
 # Changes
 
+## v0.2.0 - 4/14/15
+
+* `Readable` now emits pings (`{}`, which are ignored by `Collector`) in order
+   to facilitate concurrent buffering.
+
 ## v0.1.6 - 4/9/15
 
 * Correctly finish reading from MBTiles

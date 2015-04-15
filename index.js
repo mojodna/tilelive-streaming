@@ -8,6 +8,9 @@ var _ = require("highland"),
     async = require("async"),
     tilelive = require("tilelive");
 
+var PING = {},
+    PING_DELAY = 50;
+
 /**
  * Mildly enhanced PassThrough stream with header-setting capabilities.
  */
@@ -140,6 +143,11 @@ var Readable = function(options, source) {
         done = false,
         keepGoing = true;
 
+    // support concurrent buffering
+    var ping = setTimeout(function() {
+      self.push(PING);
+    }, PING_DELAY);
+
     return async.whilst(function() {
       return keepGoing && !done;
     }, function(callback) {
@@ -177,6 +185,7 @@ var Readable = function(options, source) {
 
       // no more tiles
       done = true;
+      clearTimeout(ping);
 
       return callback();
     }, function() {
@@ -207,6 +216,11 @@ var Collector = function() {
   });
 
   this._transform = function(obj, _, done) {
+    // sentinel object (empty)
+    if (obj === PING) {
+      return done();
+    }
+
     var self = this,
         chunks = [],
         headers = {};
