@@ -1,5 +1,11 @@
 # Changes
 
+## v0.3.0 - 4/30/15
+
+* Make concurrency configurable via `options` (the final object to all
+  constructors and factory methods)
+* Limit the number of pending `_read()` calls to `options.concurrency`
+
 ## v0.2.0 - 4/14/15
 
 * `Readable` now emits pings (`{}`, which are ignored by `Collector`) in order

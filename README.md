@@ -13,7 +13,9 @@ outputting a stream of streams containing tile data.
 ## Usage
 
 ```javascript
-var tilelive = require("tilelive-streaming")(require("tilelive"));
+var tilelive = require("tilelive-streaming")(require("tilelive"), {
+  concurrency: 8
+});
 require("mbtiles").registerProtocols(tilelive);
 
 tilelive.load("mbtiles://./in.mbtiles", function(err, source) {
@@ -26,7 +28,7 @@ tilelive.load("mbtiles://./in.mbtiles", function(err, source) {
 ## Options
 
 `createReadStream` passes its options into a `tilelive.Scheme` subclass
-(specified by `options.scheme`, defaulting to `scanline`), so the documentation
+(specified by `sourceConfig.scheme`, defaulting to `scanline`), so the documentation
 for that takes precedence.  In practice, `minzoom`, `maxzoom`, and `bounds` are
 likely candidates, as they can be used for filtering.
 

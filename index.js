@@ -8,7 +8,8 @@ var _ = require("highland"),
     async = require("async"),
     tilelive = require("tilelive");
 
-var PING = {},
+var DEFAULT_CONCURRENCY = 8,
+    PING = {},
     PING_DELAY = 50;
 
 /**
@@ -98,14 +99,14 @@ var restrict = function(info, by) {
 /**
 * Generate a stream of stream objects containing tile data and coordinates.
 */
-var Readable = function(options, source) {
+var Readable = function(sourceConfig, source, options) {
   stream.Readable.call(this, {
     objectMode: true,
-    highWaterMark: 32
+    highWaterMark: options.concurrency
   });
 
   // set some defaults
-  options = applyDefaults(options, true);
+  sourceConfig = applyDefaults(sourceConfig, true);
 
   var readable = this,
       scheme;
@@ -119,21 +120,27 @@ var Readable = function(options, source) {
     }
 
     if (info) {
-      options = restrict(options, info);
-      readable.emit("info", restrict(info, options));
+      sourceConfig = restrict(sourceConfig, info);
+      readable.emit("info", restrict(info, sourceConfig));
     }
 
-    readable.options = options;
+    readable.sourceConfig = sourceConfig;
 
     // tilelive uses a different key from TileJSON
-    options.bbox = options.bounds;
-    scheme = tilelive.Scheme.create(options.scheme, options);
+    sourceConfig.bbox = sourceConfig.bounds;
+    scheme = tilelive.Scheme.create(sourceConfig.scheme, sourceConfig);
     scheme.formats = ["tile"];
   });
 
   var pending = 0;
 
   this._read = function() {
+    // limit the number of concurrent reads pending
+    if (pending >= CONCURRENCY) {
+      // bail early if already reading
+      return;
+    }
+
     if (!scheme) {
       // scheme isn't ready yet
       return setImmediate(this._read.bind(this));
@@ -204,10 +211,10 @@ util.inherits(Readable, stream.Readable);
 /**
 * Consume a stream of stream objects containing tile data and coordinates.
 */
-var Collector = function() {
+var Collector = function(options) {
   stream.Transform.call(this, {
     objectMode: true,
-    highWaterMark: 32
+    highWaterMark: options.concurrency
   });
 
   this.on("pipe", function(src) {
@@ -271,10 +278,10 @@ util.inherits(Collector, stream.Transform);
 /**
 * Wrap a tilelive sink
 */
-var Writable = function(sink) {
+var Writable = function(sink, options) {
   stream.Writable.call(this, {
     objectMode: true,
-    highWaterMark: 32
+    highWaterMark: options.concurrency
   });
 
   this._write = function(obj, _, callback) {
@@ -303,7 +310,10 @@ var enhance = function(uri, source) {
   return source;
 };
 
-module.exports = function(tilelive) {
+module.exports = function(tilelive, options) {
+  options = options || {};
+  options.concurrency = options.concurrency || DEFAULT_CONCURRENCY;
+
   var enableStreaming = function(uri, source) {
     if (source._streamable) {
       // already enhanced
@@ -319,29 +329,29 @@ module.exports = function(tilelive) {
     if (source.getTile) {
       // only add readable streams if the underlying source is readable
 
-      source.createReadStream = source.createReadStream || function(options) {
-        return new Readable(options, this);
+      source.createReadStream = source.createReadStream || function(opts) {
+        return new Readable(opts, this);
       };
     }
 
     if (source.putTile) {
       // only add writable streams if the underlying source is writable
 
-      source.createWriteStream = source.createWriteStream || function(options) {
+      source.createWriteStream = source.createWriteStream || function(opts) {
         var sink = this,
-            writeStream = new Collector();
+            writeStream = new Collector(options);
 
-        options = options || {};
-        options.info = options.info || {};
+        opts = opts || {};
+        opts.info = opts.info || {};
 
         if (sink.putInfo) {
           var infoReceived = false;
 
           writeStream.once("info", function(info) {
             infoReceived = true;
-            options.info = _.extend(options.info, info);
+            options.info = _.extend(opts.info, info);
 
-            return sink.putInfo(restrict(options.info, info), function(err) {
+            return sink.putInfo(restrict(opts.info, info), function(err) {
               if (err) {
                 throw err;
               }
@@ -351,7 +361,7 @@ module.exports = function(tilelive) {
           writeStream.on("finish", function() {
             if (!infoReceived) {
               infoReceived = true;
-              return sink.putInfo(options.info, function(err) {
+              return sink.putInfo(opts.info, function(err) {
                 if (err) {
                   throw err;
                 }
@@ -361,7 +371,7 @@ module.exports = function(tilelive) {
         }
 
         writeStream
-          .pipe(new Writable(this));
+          .pipe(new Writable(this, options));
 
         // return a reference to the head-end of the pipeline
         return writeStream;
