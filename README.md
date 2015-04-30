@@ -51,7 +51,7 @@ support streaming natively and where the default behavior can be improved upon.
 as the actual list of tiles present can be determined directly from the source
 (rather than scanning a bounding box and zoom range for possible candidates).
 
-### mbtiles
+### MBTiles
 
 `mbtiles`' `createReadStream` accepts a `batchSize` argument that allows the
 number of tiles read from the underlying SQLite3 database at a time to be
