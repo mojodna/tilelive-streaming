@@ -67,7 +67,15 @@ var clone = function(obj) {
   }, {});
 };
 
-var applyDefaults = function(info, isOptions) {
+var applyDefaults = function(options) {
+  var data = clone(options);
+
+  data.concurrency = data.concurrency || DEFAULT_CONCURRENCY;
+
+  return data;
+};
+
+var applyConfigDefaults = function(info, isOptions) {
   var data = clone(info);
 
   if (isOptions) {
@@ -82,8 +90,8 @@ var applyDefaults = function(info, isOptions) {
 };
 
 var restrict = function(info, by) {
-  info = applyDefaults(info);
-  by = applyDefaults(by);
+  info = applyConfigDefaults(info);
+  by = applyConfigDefaults(by);
 
   // restrict the options according to known restrictions
   info.minzoom = Math.max(info.minzoom, by.minzoom);
@@ -100,13 +108,14 @@ var restrict = function(info, by) {
 * Generate a stream of stream objects containing tile data and coordinates.
 */
 var Readable = function(sourceConfig, source, options) {
+  // set some defaults
+  sourceConfig = applyConfigDefaults(sourceConfig, true);
+  options = applyDefaults(options);
+
   stream.Readable.call(this, {
     objectMode: true,
     highWaterMark: options.concurrency
   });
-
-  // set some defaults
-  sourceConfig = applyDefaults(sourceConfig, true);
 
   var readable = this,
       scheme;
@@ -136,7 +145,7 @@ var Readable = function(sourceConfig, source, options) {
 
   this._read = function() {
     // limit the number of concurrent reads pending
-    if (pending >= CONCURRENCY) {
+    if (pending >= options.concurrency) {
       // bail early if already reading
       return;
     }
@@ -212,6 +221,8 @@ util.inherits(Readable, stream.Readable);
 * Consume a stream of stream objects containing tile data and coordinates.
 */
 var Collector = function(options) {
+  options = applyDefaults(options);
+
   stream.Transform.call(this, {
     objectMode: true,
     highWaterMark: options.concurrency
@@ -279,6 +290,8 @@ util.inherits(Collector, stream.Transform);
 * Wrap a tilelive sink
 */
 var Writable = function(sink, options) {
+  options = applyDefaults(options);
+
   stream.Writable.call(this, {
     objectMode: true,
     highWaterMark: options.concurrency
@@ -311,8 +324,7 @@ var enhance = function(uri, source) {
 };
 
 module.exports = function(tilelive, options) {
-  options = options || {};
-  options.concurrency = options.concurrency || DEFAULT_CONCURRENCY;
+  options = applyDefaults(options);
 
   var enableStreaming = function(uri, source) {
     if (source._streamable) {
@@ -402,6 +414,7 @@ module.exports.Collector = Collector;
 module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
-module.exports.applyDefaults = applyDefaults;
+// TODO remove these from the public API
+module.exports.applyDefaults = applyConfigDefaults;
 module.exports.clone = clone;
 module.exports.restrict = restrict;

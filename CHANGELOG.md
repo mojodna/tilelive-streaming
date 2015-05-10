@@ -1,5 +1,9 @@
 # Changes
 
+## v0.3.1 - 5/9/15
+
+* Apply default concurrency values to all public APIs that take options
+
 ## v0.3.0 - 4/30/15
 
 * Make concurrency configurable via `options` (the final object to all
