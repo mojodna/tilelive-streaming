@@ -114,7 +114,7 @@ var Readable = function(sourceConfig, source, options) {
 
   stream.Readable.call(this, {
     objectMode: true,
-    highWaterMark: options.concurrency
+    highWaterMark: options && options.concurrency ? options.concurrency : DEFAULT_CONCURRENCY
   });
 
   var readable = this,
@@ -142,6 +142,7 @@ var Readable = function(sourceConfig, source, options) {
   });
 
   var pending = 0;
+  var CONCURRENCY = options && options.concurrency ? options.concurrency : DEFAULT_CONCURRENCY;
 
   this._read = function() {
     // limit the number of concurrent reads pending
@@ -225,7 +226,7 @@ var Collector = function(options) {
 
   stream.Transform.call(this, {
     objectMode: true,
-    highWaterMark: options.concurrency
+    highWaterMark: options && options.concurrency ? options.concurrency : DEFAULT_CONCURRENCY
   });
 
   this.on("pipe", function(src) {
@@ -294,7 +295,7 @@ var Writable = function(sink, options) {
 
   stream.Writable.call(this, {
     objectMode: true,
-    highWaterMark: options.concurrency
+    highWaterMark: options && options.concurrency ? options.concurrency : DEFAULT_CONCURRENCY
   });
 
   this._write = function(obj, _, callback) {
