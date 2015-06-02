@@ -5,8 +5,9 @@ var stream = require("stream"),
     util = require("util");
 
 var _ = require("highland"),
-    async = require("async"),
-    tilelive = require("tilelive");
+    async = require("async");
+
+var Scheme = require("./lib/scheme");
 
 var DEFAULT_CONCURRENCY = 8,
     PING = {},
@@ -137,7 +138,7 @@ var Readable = function(sourceConfig, source, options) {
 
     // tilelive uses a different key from TileJSON
     sourceConfig.bbox = sourceConfig.bounds;
-    scheme = tilelive.Scheme.create(sourceConfig.scheme, sourceConfig);
+    scheme = Scheme.create(sourceConfig.scheme, sourceConfig);
     scheme.formats = ["tile"];
   });
 
