@@ -1,5 +1,10 @@
 # Changes
 
+## v0.4.0 - 6/2/15
+
+* Imported and patched (for Node 0.12+) Scheme-related modules from
+  tilelive@4.5.3
+
 ## v0.3.1 - 5/9/15
 
 * Apply default concurrency values to all public APIs that take options
