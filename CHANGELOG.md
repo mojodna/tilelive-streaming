@@ -3,6 +3,8 @@
 ## v0.5.0
 
 * Removed `applyDefaults`, `clone`, and `restrict` from exports
+* Enhance `tilelive` with a `pipe` method that streams sources when they're
+  loaded
 
 ## v0.4.0 - 6/2/15
 

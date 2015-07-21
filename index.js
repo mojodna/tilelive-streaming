@@ -396,12 +396,21 @@ module.exports = function(tilelive, options) {
     return source;
   };
 
+  // attach a 'pipe' method to tilelive (objectMode stream containing sources)
+  var streamableSources = new stream.PassThrough({
+    objectMode: true
+  });
+
+  tilelive.pipe = streamableSources.pipe.bind(streamableSources);
+
   var _load = tilelive.load.bind(tilelive);
 
   tilelive.load = function(uri, callback) {
     return _load(uri, function(err, source) {
       if (!err) {
         source = enableStreaming(uri, source);
+
+        streamableSources.write(source);
       }
 
       return callback(err, source);
