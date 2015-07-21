@@ -16,12 +16,13 @@ var DEFAULT_CONCURRENCY = 8,
 /**
  * Mildly enhanced PassThrough stream with header-setting capabilities.
  */
-var TileStream = function(zoom, x, y) {
+var TileStream = function(zoom, x, y, context) {
   stream.PassThrough.call(this);
 
   this.z = zoom;
   this.x = x;
   this.y = y;
+  this.context = context;
 
   var dests = [],
       _pipe = this.pipe,
@@ -319,15 +320,49 @@ var enhance = function(uri, source) {
 
   try {
     source = require("./lib/" + proto)(source);
-  } catch (err) {}
+
+    // TODO use ES6 Symbols
+    source._streamable = true;
+  } catch (err) {
+    // noop
+  }
 
   return source;
+};
+
+var streamTile = function(source, getTile, passThrough, z, x, y, context, callback) {
+  callback = callback || function() {};
+
+  var tileStream = new TileStream(z, x, y, context);
+
+  getTile(z, x, y, function(err, data, headers) {
+    if (err) {
+      setImmediate(function() {
+        tileStream.on("error", err);
+      });
+    }
+
+    if (data) {
+      passThrough.write(tileStream);
+
+      // give listeners a chance to pipe the data stream somewhere
+      setImmediate(function() {
+        tileStream.setHeaders(headers);
+        tileStream.end(data);
+      });
+    }
+
+    return callback.apply(null, arguments);
+  });
+
+  return tileStream;
 };
 
 module.exports = function(tilelive, options) {
   options = applyDefaults(options);
 
   var enableStreaming = function(uri, source) {
+    // TODO use ES6 Symbols
     if (source._streamable) {
       // already enhanced
 
@@ -345,6 +380,62 @@ module.exports = function(tilelive, options) {
       source.createReadStream = source.createReadStream || function(opts) {
         return new Readable(opts, this);
       };
+
+      if (!source.pipe) {
+        // only implement pipe if didn't already exist
+        // NOTE: if pipe exists, getTile is assumed to also be enhanced
+
+        var passThrough = new stream.PassThrough({
+          objectMode: true
+        });
+
+        // attach a pipe method to the source that all rendered tiles pass
+        // through
+        source.pipe = passThrough.pipe.bind(passThrough);
+
+        var getTile = source.getTile.bind(source);
+
+        // wrap getTile so that it both returns and pipes tile streams
+        source.getTile = function(z, x, y, callback) {
+          var context = {};
+
+          Object
+            .keys(callback)
+            .forEach(function(k) {
+              context[k] = callback[k];
+            });
+
+          return streamTile(source, getTile, passThrough, z, x, y, context, function(err, data) {
+            if (err) {
+              // handled by streamTile
+            }
+
+            // get neighboring tiles within the same metatile
+            //
+            // NOTE: assumes that sources internally cache metatiles for rapid
+            // subsequent access (tilelive-mapnik does, for example)
+            if (data && source.metatile && source.metatile > 1) {
+              // TODO extract this (also used in tilelive-cache)
+              var dx = x % source.metatile,
+                  dy = y % source.metatile,
+                  metaX = x - dx,
+                  metaY = y - dy;
+
+              for (var ix = metaX; ix < metaX + source.metatile; ix++) {
+                for (var iy = metaY; iy < metaY + source.metatile; iy++) {
+                  // ignore the current tile
+                  if (!(ix === x && iy === y)) {
+                    streamTile(source, getTile, passThrough, z, ix, iy, context);
+                  }
+                }
+              }
+            }
+
+            // return control to the original callback
+            return callback.apply(null, arguments);
+          });
+        };
+      }
     }
 
     if (source.putTile) {

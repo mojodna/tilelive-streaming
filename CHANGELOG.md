@@ -5,6 +5,8 @@
 * Removed `applyDefaults`, `clone`, and `restrict` from exports
 * Enhance `tilelive` with a `pipe` method that streams sources when they're
   loaded
+* Enhance sources with a `pipe` method that streams tiles as they're created
+* Enhance source `getTile` methods to return `TileStream`s
 
 ## v0.4.0 - 6/2/15
 
