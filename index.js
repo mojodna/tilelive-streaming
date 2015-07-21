@@ -49,8 +49,8 @@ var TileStream = function(zoom, x, y) {
     if (headers) {
       dests.forEach(function(dest) {
         if (dest.setHeader) {
-          Object.keys(headers).forEach(function(x) {
-            dest.setHeader(x, headers[x]);
+          Object.keys(headers).forEach(function(k) {
+            dest.setHeader(k, headers[k]);
           });
         }
       });
@@ -311,7 +311,7 @@ var Writable = function(sink, options) {
 util.inherits(Writable, stream.Writable);
 
 var enhance = function(uri, source) {
-  if (typeof(uri) === "string") {
+  if (typeof uri === "string") {
     uri = url.parse(uri);
   }
 
