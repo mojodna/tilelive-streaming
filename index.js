@@ -415,7 +415,3 @@ module.exports.Collector = Collector;
 module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
-// TODO remove these from the public API
-module.exports.applyDefaults = applyConfigDefaults;
-module.exports.clone = clone;
-module.exports.restrict = restrict;

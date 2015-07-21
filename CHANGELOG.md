@@ -1,5 +1,9 @@
 # Changes
 
+## v0.5.0
+
+* Removed `applyDefaults`, `clone`, and `restrict` from exports
+
 ## v0.4.0 - 6/2/15
 
 * Imported and patched (for Node 0.12+) Scheme-related modules from
