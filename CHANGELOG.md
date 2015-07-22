@@ -1,5 +1,9 @@
 # Changes
 
+## v0.5.1 - 7/22/15
+
+* Expose `sourceURI` property on sources
+
 ## v0.5.0 - 7/21/15
 
 * Removed `applyDefaults`, `clone`, and `restrict` from exports

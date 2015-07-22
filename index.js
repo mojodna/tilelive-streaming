@@ -501,6 +501,9 @@ module.exports = function(tilelive, options) {
       if (!err) {
         source = enableStreaming(uri, source);
 
+        // TODO ES6 Symbols
+        source.sourceURI = uri;
+
         streamableSources.write(source);
       }
 
