@@ -338,7 +338,7 @@ var streamTile = function(source, getTile, passThrough, z, x, y, context, callba
   getTile(z, x, y, function(err, data, headers) {
     if (err) {
       setImmediate(function() {
-        tileStream.on("error", err);
+        tileStream.on("error", function(err){return err});
       });
     }
 
