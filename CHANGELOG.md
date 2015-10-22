@@ -1,5 +1,9 @@
 # Changes
 
+## v0.5.2 - 10/22/15
+
+* Fix error propagation
+
 ## v0.5.1 - 7/22/15
 
 * Expose `sourceURI` property on sources
