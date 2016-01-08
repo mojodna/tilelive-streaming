@@ -5,9 +5,13 @@ var stream = require("stream"),
     util = require("util");
 
 var _ = require("highland"),
-    async = require("async");
+    async = require("async"),
+    _debug = require("debug");
 
-var Scheme = require("./lib/scheme");
+var meta = require("./package.json"),
+    Scheme = require("./lib/scheme");
+
+var debug = _debug(meta.name);
 
 var DEFAULT_CONCURRENCY = 8,
     PING = {},
@@ -144,6 +148,12 @@ var Readable = function(sourceConfig, source, options) {
   });
 
   var pending = 0;
+  var pendingTiles = {};
+
+  var statusInterval = setInterval(function() {
+    debug("status: %d pending requests", pending);
+    debug("status:", Object.keys(pendingTiles));
+  }, 5000);
 
   this._read = function() {
     // limit the number of concurrent reads pending
@@ -174,7 +184,9 @@ var Readable = function(sourceConfig, source, options) {
       if (tile) {
         // track pending requests so we don't end the stream before they finish
         pending++;
+        pendingTiles[[tile.z, tile.x, tile.y].join("/")] = true;
         return source.getTile(tile.z, tile.x, tile.y, function(err, data, headers) {
+          delete pendingTiles[[tile.z, tile.x, tile.y].join("/")];
           pending--;
 
           if (err) {
@@ -201,6 +213,8 @@ var Readable = function(sourceConfig, source, options) {
         });
       }
 
+      debug("No more tiles to fetch.");
+
       // no more tiles
       done = true;
       clearTimeout(ping);
@@ -210,8 +224,14 @@ var Readable = function(sourceConfig, source, options) {
       // all pending getTile() calls are complete
 
       if (done && pending === 0) {
+        debug("Ending the stream");
+
+        clearInterval(statusInterval);
+
         // end the stream
         self.push(null);
+      } else {
+        debug("%d pending requests, waiting...", pending);
       }
     });
   };

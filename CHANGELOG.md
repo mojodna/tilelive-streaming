@@ -3,6 +3,8 @@
 ## v0.6.0 - 1/7/16
 
 * Fix off-by-one in concurrency handling
+* Use `debug` for debugging. Set `DEBUG=tilelive-streaming` in the environment
+  to enable.
 
 ## v0.5.3 - 1/7/16
 
