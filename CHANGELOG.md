@@ -1,5 +1,9 @@
 # Changes
 
+## v0.6.0 - 1/7/16
+
+* Fix off-by-one in concurrency handling
+
 ## v0.5.3 - 1/7/16
 
 * Export `restrict` for use by `lib/mbtiles`

@@ -147,7 +147,7 @@ var Readable = function(sourceConfig, source, options) {
 
   this._read = function() {
     // limit the number of concurrent reads pending
-    if (pending >= options.concurrency) {
+    if (pending + 1 >= options.concurrency) {
       // bail early if already reading
       return;
     }
