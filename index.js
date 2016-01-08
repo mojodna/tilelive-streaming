@@ -356,9 +356,15 @@ var streamTile = function(source, getTile, passThrough, z, x, y, context, callba
   var tileStream = new TileStream(z, x, y, context);
 
   getTile(z, x, y, function(err, data, headers) {
-    if (err) {
+    if (err && !err.message.match(/Tile|Grid does not exist/)) {
+      debug(err);
+      // pass the stream through so that the error can be caught
+      passThrough.write(tileStream);
+
+      // give listeners a chance to set up handlers
       setImmediate(function() {
         tileStream.emit("error", err);
+        tileStream.end();
       });
     }
 

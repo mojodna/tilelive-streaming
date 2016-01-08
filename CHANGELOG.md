@@ -5,6 +5,8 @@
 * Fix off-by-one in concurrency handling
 * Use `debug` for debugging. Set `DEBUG=tilelive-streaming` in the environment
   to enable.
+* Don't treat `Tile|Grid does not exist` errors as fatal.
+* Allow errors to be handled by stream consumers.
 
 ## v0.5.3 - 1/7/16
 
