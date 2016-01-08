@@ -1,5 +1,9 @@
 # Changes
 
+## v0.5.3 - 1/7/16
+
+* Export `restrict` for use by `lib/mbtiles`
+
 ## v0.5.2 - 10/22/15
 
 * Fix error propagation
