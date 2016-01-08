@@ -1,6 +1,6 @@
 {
   "name": "tilelive-streaming",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Streaming functionality for tilelive modules",
   "main": "index.js",
   "author": "Seth Fitzsimmons <seth@mojodna.net>",
