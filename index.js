@@ -544,4 +544,6 @@ module.exports.Collector = Collector;
 module.exports.Readable = Readable;
 module.exports.TileStream = TileStream;
 module.exports.Writable = Writable;
+module.exports.applyDefaults = applyDefaults;
+module.exports.clone = clone;
 module.exports.restrict = restrict;
