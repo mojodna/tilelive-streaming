@@ -1,5 +1,9 @@
 # Changes
 
+## v0.6.2 - 3/4/16
+
+* Fix `stream.push() after EOF` error.
+
 ## v0.6.1 - 2/15/16
 
 * Export `applyDefaults` and `clone` for use by `lib/mbtiles` as a source (james.flemer@ndpgroup.com)

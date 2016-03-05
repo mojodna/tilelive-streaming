@@ -217,11 +217,11 @@ var Readable = function(sourceConfig, source, options) {
 
       // no more tiles
       done = true;
-      clearTimeout(ping);
 
       return callback();
     }, function() {
       // all pending getTile() calls are complete
+      clearTimeout(ping);
 
       if (done && pending === 0) {
         debug("Ending the stream");
