@@ -1,8 +1,9 @@
 # Changes
 
-## v0.6.3
+## v0.6.3 - 3/11/16
 
 * Correctly handle "Tile does not exist" errors
+* Cleaner stream / error handling
 
 ## v0.6.2 - 3/4/16
 

@@ -61,6 +61,11 @@ var TileStream = function(zoom, x, y, context) {
       });
     }
   };
+
+  // attach an error handler to make errors on this stream non-fatal
+  this.on("error", function(err) {
+    // NOOP
+  })
 };
 
 util.inherits(TileStream, stream.PassThrough);
@@ -361,21 +366,15 @@ var streamTile = function(source, getTile, passThrough, z, x, y, context, callba
       // pass the stream through so that the error can be caught
       passThrough.write(tileStream);
 
-      // give listeners a chance to set up handlers
-      setImmediate(function() {
-        tileStream.emit("error", err);
-        tileStream.end();
-      });
+      tileStream.emit("error", err);
+      tileStream.end();
     }
 
     if (data) {
       passThrough.write(tileStream);
 
-      // give listeners a chance to pipe the data stream somewhere
-      setImmediate(function() {
-        tileStream.setHeaders(headers);
-        tileStream.end(data);
-      });
+      tileStream.setHeaders(headers);
+      tileStream.end(data);
     }
 
     return callback.apply(null, arguments);
