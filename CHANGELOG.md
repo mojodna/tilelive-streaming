@@ -1,5 +1,9 @@
 # Changes
 
+## v0.6.3
+
+* Correctly handle "Tile does not exist" errors
+
 ## v0.6.2 - 3/4/16
 
 * Fix `stream.push() after EOF` error.
