@@ -1,5 +1,9 @@
 # Changes
 
+## v0.6.4
+
+* Re-organize source tree to prevent enhancer conflicts
+
 ## v0.6.3 - 3/11/16
 
 * Correctly handle "Tile does not exist" errors

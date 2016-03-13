@@ -344,10 +344,7 @@ var enhance = function(uri, source) {
   var proto = uri.protocol.slice(0, -1);
 
   try {
-    source = require("./lib/" + proto)(source);
-
-    // TODO use ES6 Symbols
-    source._streamable = true;
+    source = require("./lib/enhancers/" + proto)(source);
   } catch (err) {
     // noop
   }
@@ -397,7 +394,7 @@ module.exports = function(tilelive, options) {
     // attempt to enhance the source with custom streams
     source = enhance(uri, source);
 
-    // fall back to default enhancement
+    // apply default enhancement
 
     if (source.getTile) {
       // only add readable streams if the underlying source is readable
