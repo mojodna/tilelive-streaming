@@ -1,5 +1,9 @@
 # Changes
 
+## v0.7.0 - 3/15/16
+
+* MBTiles optimization: restrict tile coordinates when querying
+
 ## v0.6.4 - 3/15/16
 
 * Re-organize source tree to prevent enhancer conflicts
