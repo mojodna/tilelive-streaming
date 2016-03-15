@@ -75,7 +75,7 @@ var TileStream = function(zoom, x, y, context) {
   // attach an error handler to make errors on this stream non-fatal
   this.on("error", function(err) {
     // NOOP
-  })
+  });
 };
 
 util.inherits(TileStream, stream.PassThrough);
