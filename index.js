@@ -30,10 +30,19 @@ var TileStream = function(zoom, x, y, context) {
 
   var dests = [],
       _pipe = this.pipe,
-      _unpipe = this.unpipe;
+      _unpipe = this.unpipe,
+      _headers;
 
   this.pipe = function(dest) {
     dests.push(dest);
+
+    if (_headers) {
+      if (dest.setHeader) {
+        Object.keys(_headers).forEach(function(k) {
+          dest.setHeader(k, _headers[k]);
+        });
+      }
+    }
 
     return _pipe.apply(this, arguments);
   };
@@ -52,6 +61,7 @@ var TileStream = function(zoom, x, y, context) {
 
   this.setHeaders = function(headers) {
     if (headers) {
+      _headers = headers;
       dests.forEach(function(dest) {
         if (dest.setHeader) {
           Object.keys(headers).forEach(function(k) {

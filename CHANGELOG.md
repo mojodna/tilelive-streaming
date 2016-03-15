@@ -1,8 +1,9 @@
 # Changes
 
-## v0.6.4
+## v0.6.4 - 3/15/16
 
 * Re-organize source tree to prevent enhancer conflicts
+* Correct handle `setHeaders` when metatiling
 
 ## v0.6.3 - 3/11/16
 
