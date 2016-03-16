@@ -1,5 +1,9 @@
 # Changes
 
+## v0.7.1 - 3/15/16
+
+* Correct relative path in `lib/enhancers/mbtiles.js`
+
 ## v0.7.0 - 3/15/16
 
 * MBTiles optimization: restrict tile coordinates when querying
