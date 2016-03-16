@@ -529,6 +529,7 @@ module.exports = function(tilelive, options) {
   var _load = tilelive.load.bind(tilelive);
 
   tilelive.load = function(uri, callback) {
+    callback = callback || function() {};
     return _load(uri, function(err, source) {
       if (!err) {
         source = enableStreaming(uri, source);
