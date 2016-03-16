@@ -1,5 +1,9 @@
 # Changes
 
+## v0.7.2 - 3/15/16
+
+* Reset offset for each zoom
+
 ## v0.7.1 - 3/15/16
 
 * Correct relative path in `lib/enhancers/mbtiles.js`
