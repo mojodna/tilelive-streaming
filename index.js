@@ -205,7 +205,7 @@ var Readable = function(sourceConfig, source, options) {
           pending--;
 
           if (err) {
-            if (!err.message.match(/Tile|Grid does not exist/)) {
+            if (!err.message.match(/(Tile|Grid) does not exist/)) {
               console.warn(err.stack);
               return callback();
             }
