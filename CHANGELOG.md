@@ -1,5 +1,9 @@
 # Changes
 
+## vNext
+
+* Close sink when writing is complete
+
 ## v0.7.2 - 3/15/16
 
 * Reset offset for each zoom
