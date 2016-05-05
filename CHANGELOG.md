@@ -1,5 +1,9 @@
 # Changes
 
+## v0.7.4 - 5/4/16
+
+* Upgrade dependencies
+
 ## v0.7.3 - 5/4/16
 
 * Correctly handle "Tile does not exist" errors when reading
