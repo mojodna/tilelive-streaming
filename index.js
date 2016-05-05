@@ -329,12 +329,12 @@ util.inherits(Collector, stream.Transform);
 var Writable = function(sink, options) {
   options = applyDefaults(options);
 
-  stream.Transform.call(this, {
+  stream.Writable.call(this, {
     objectMode: true,
     highWaterMark: options.concurrency
   });
 
-  this._transform = function(obj, _, callback) {
+  this._write = function(obj, _, callback) {
     if (sink.putTile.length === 5) {
       // sink doesn't include a headers parameter
       return sink.putTile(obj.z, obj.x, obj.y, obj.data, callback);
@@ -342,13 +342,9 @@ var Writable = function(sink, options) {
 
     return sink.putTile(obj.z, obj.x, obj.y, obj.data, obj.headers, callback);
   };
-
-  this._flush = function(callback) {
-    return sink.close(callback);
-  }
 };
 
-util.inherits(Writable, stream.Transform);
+util.inherits(Writable, stream.Writable);
 
 var enhance = function(uri, source) {
   if (typeof uri === "string") {

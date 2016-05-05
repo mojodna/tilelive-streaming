@@ -2,7 +2,6 @@
 
 ## vNext
 
-* Close sink when writing is complete
 * Correctly handle "Tile does not exist" errors when reading
 
 ## v0.7.2 - 3/15/16
