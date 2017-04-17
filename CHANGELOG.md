@@ -1,5 +1,10 @@
 # Changes
 
+## v0.7.5 - 4/17/17
+
+* `process.EventEmitter` was deprecated in Node-6.x and removed in 7.x; updated references
+  to it.
+
 ## v0.7.4 - 5/4/16
 
 * Upgrade dependencies
