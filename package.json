@@ -13,7 +13,7 @@
     "async": "^1.5.2",
     "debug": "^2.2.0",
     "highland": "^2.0.0",
-    "sphericalmercator": "^1.0.2",
-    "tiletype": "^0.3.0"
+    "@mapbox/sphericalmercator": "^1.0.2",
+    "@mapbox/tiletype": "^0.3.0"
   }
 }
