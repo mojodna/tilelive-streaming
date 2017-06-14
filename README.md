@@ -13,10 +13,10 @@ outputting a stream of streams containing tile data.
 ## Usage
 
 ```javascript
-var tilelive = require("tilelive-streaming")(require("tilelive"), {
+var tilelive = require("tilelive-streaming")(require("@mapbox/tilelive"), {
   concurrency: 8
 });
-require("mbtiles").registerProtocols(tilelive);
+require("@mapbox/mbtiles").registerProtocols(tilelive);
 
 tilelive.load("mbtiles://./in.mbtiles", function(err, source) {
   return tilelive.load("mbtiles://./out.mbtiles", function(err, sink) {
