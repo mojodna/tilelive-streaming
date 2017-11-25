@@ -126,8 +126,8 @@ var restrict = function(info, by) {
 };
 
 /**
-* Generate a stream of stream objects containing tile data and coordinates.
-*/
+ * Generate a stream of stream objects containing tile data and coordinates.
+ */
 var Readable = function(sourceConfig, source, options) {
   // set some defaults
   sourceConfig = applyConfigDefaults(sourceConfig, true);
